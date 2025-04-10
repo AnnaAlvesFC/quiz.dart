@@ -38,11 +38,8 @@ class _myAppState extends State<myApp>{
         mensagem = 'Resposta errada!';
       }
     });
-   }
-
-   // esperar 2 segundos e passa para a próxima pergunta
-   future.delayed(Duration(seconds: 2), (){
-    SetState((){
+    Future.delayed(Duration(seconds: 2), (){
+    setState((){
       mensagem = null;
       if(perguntaAtual < perguntas.length - 1){
         perguntaAtual++;
@@ -51,7 +48,12 @@ class _myAppState extends State<myApp>{
         quizFinalizado = true;
       }
     });
-   });
+   })
+   ;
+   }
+
+   // esperar 2 segundos e passa para a próxima pergunta
+   
 
    //método pra reiniciar o quiz
    void reiniciarQuiz(){
@@ -63,6 +65,7 @@ class _myAppState extends State<myApp>{
     });
    }
   
+  //
 
   @override
   Widget build(BuildContext context){
@@ -70,21 +73,55 @@ class _myAppState extends State<myApp>{
       theme:ThemeData.dark(),
       darkTheme: ThemeData.dark(),
       home: Scaffold(
-        appBar: AppBar(title: Text("Meu app")),
+        appBar: AppBar(title: Text("Meu quiz")),
         body: Center(
-          child: Column(
+          child: quizFinalizado ? 
+          Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              SizedBox(height: 20), 
-              Text(texto, style:TextStyle(fontSize: 45,color:Colors.blue)),
+              Text(
+                "Parabens voce finalizou o quiz",
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 24),
+              ),
               SizedBox(height: 20),
-              ElevatedButton(onPressed: alterarTexto, 
-              child: Text("Aperta-me")
-              )
+              Text(
+                "Sua pontuação: $pontos/${perguntas.length}"
+              ),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed:reiniciarQuiz,
+                child: Text("Recomeçar")
+                ),
+            ],
+          ): Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.network('linkdaimagem.com', width: 100, height: 100,),
+              SizedBox(height: 20,),
+              Text(
+                perguntas[perguntaAtual] ['pergunta'],
+                textAlign: TextAlign.center
+              ), 
+              SizedBox(height: 20),
+              ...perguntas[perguntaAtual]['opcoes'].map<Widget>((opcao){
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical:4.0),
+                  child: ElevatedButton(
+                    onPressed: mensagem == null ? () => verificarResposta(opcao): null,
+                    child: Text(opcao)
+                   ) 
+                  );
+              }).toList(),
+              SizedBox(height: 20),
+              if (mensagem != null)
+                Text(mensagem!),
+              SizedBox(height: 20),
+              Text("Pontuação: $pontos")
             ],
           )
+          )
         ),
-      )
-      );
+    );
   }
 }
